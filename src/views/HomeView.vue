@@ -23,109 +23,111 @@ const principles = [
 </script>
 
 <template>
-  <!-- Hero -->
-  <section class="hero">
-    <div class="container hero__inner">
-      <span class="badge">Open source · Built by the community</span>
-      <h1 class="hero__title">
-        Developer tools for
-        <span class="hero__accent">healthcare integration</span>
-      </h1>
-      <p class="hero__sub">
-        HL7X builds focused, command-line tools for the engineers who work with
-        HL7 — generating, sending, and reading clinical messages. Free,
-        scriptable, and built in the open.
-      </p>
-
-      <div class="hero__cta">
-        <RouterLink to="/placebo" class="btn btn-primary">
-          Explore placebo
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-        </RouterLink>
-        <RouterLink to="/tools" class="btn btn-ghost">Browse all tools</RouterLink>
-      </div>
-    </div>
-  </section>
-
-  <!-- Principles -->
-  <section class="section">
-    <div class="container">
-      <div class="sec-head">
-        <span class="eyebrow">Why HL7X</span>
-        <h2>Tooling that respects the domain</h2>
-        <p class="muted">
-          Healthcare interfaces are unforgiving. Our tools are small, sharp, and
-          designed for people who already know the difference between an ADT and
-          an ORU.
+  <div class="home">
+    <!-- Hero -->
+    <section class="hero">
+      <div class="container hero__inner">
+        <span class="badge">Open source · Built by the community</span>
+        <h1 class="hero__title">
+          Developer tools for
+          <span class="hero__accent">healthcare integration</span>
+        </h1>
+        <p class="hero__sub">
+          HL7X builds focused, command-line tools for the engineers who work with
+          HL7 — generating, sending, and reading clinical messages. Free,
+          scriptable, and built in the open.
         </p>
-      </div>
 
-      <div class="grid-4">
-        <div v-for="p in principles" :key="p.title" class="principle">
-          <h3>{{ p.title }}</h3>
-          <p class="muted">{{ p.body }}</p>
+        <div class="hero__cta">
+          <RouterLink to="/placebo" class="btn btn-primary">
+            Explore placebo
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </RouterLink>
+          <RouterLink to="/tools" class="btn btn-ghost">Browse all tools</RouterLink>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Tools -->
-  <section class="section section--alt">
-    <div class="container">
-      <div class="sec-head">
-        <span class="eyebrow">The toolkit</span>
-        <h2>One tool per problem</h2>
-        <p class="muted">
-          Small, focused command-line tools for working with HL7. Pick the one
-          you need today.
-        </p>
-      </div>
-
-      <div class="grid-tools">
-        <RouterLink
-          v-for="tool in tools"
-          :key="tool.name"
-          :to="tool.to"
-          class="card tool"
-        >
-          <div class="tool__top">
-            <span class="tool__name mono">{{ tool.name }}</span>
-            <span class="status" :data-tone="statusMeta[tool.status].tone">
-              {{ statusMeta[tool.status].label }}
-            </span>
-          </div>
-          <p class="tool__tag">{{ tool.tagline }}</p>
-          <p class="tool__desc muted">{{ tool.description }}</p>
-          <div class="tool__foot">
-            <span class="mono muted">{{ tool.tags[0] }}</span>
-            <span class="tool__arrow" aria-hidden="true">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-            </span>
-          </div>
-        </RouterLink>
-      </div>
-    </div>
-  </section>
-
-  <!-- Contribute CTA -->
-  <section class="section">
-    <div class="container">
-      <div class="cta card">
-        <div class="cta__text">
-          <span class="eyebrow">Built by the community</span>
-          <h2>Healthcare tooling shouldn't be locked behind a vendor.</h2>
+    <!-- Principles -->
+    <section class="section">
+      <div class="container">
+        <div class="sec-head">
+          <span class="eyebrow">Why HL7X</span>
+          <h2>Tooling that respects the domain</h2>
           <p class="muted">
-            HL7X is a volunteer effort. If you've ever fought an interface engine
-            at 2&nbsp;a.m., you can make the next engineer's night easier.
+            Healthcare interfaces are unforgiving. Our tools are small, sharp, and
+            designed for people who already know the difference between an ADT and
+            an ORU.
           </p>
         </div>
-        <div class="cta__actions">
-          <RouterLink to="/contribute" class="btn btn-primary">Start contributing</RouterLink>
-          <a class="btn btn-ghost" href="https://github.com/hl7x" target="_blank" rel="noopener">View on GitHub</a>
+
+        <div class="grid-4">
+          <div v-for="p in principles" :key="p.title" class="principle">
+            <h3>{{ p.title }}</h3>
+            <p class="muted">{{ p.body }}</p>
+          </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
+
+    <!-- Tools -->
+    <section class="section section--alt">
+      <div class="container">
+        <div class="sec-head">
+          <span class="eyebrow">The toolkit</span>
+          <h2>One tool per problem</h2>
+          <p class="muted">
+            Small, focused command-line tools for working with HL7. Pick the one
+            you need today.
+          </p>
+        </div>
+
+        <div class="grid-tools">
+          <RouterLink
+            v-for="tool in tools"
+            :key="tool.name"
+            :to="tool.to"
+            class="card tool"
+          >
+            <div class="tool__top">
+              <span class="tool__name mono">{{ tool.name }}</span>
+              <span class="status" :data-tone="statusMeta[tool.status].tone">
+                {{ statusMeta[tool.status].label }}
+              </span>
+            </div>
+            <p class="tool__tag">{{ tool.tagline }}</p>
+            <p class="tool__desc muted">{{ tool.description }}</p>
+            <div class="tool__foot">
+              <span class="mono muted">{{ tool.tags[0] }}</span>
+              <span class="tool__arrow" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              </span>
+            </div>
+          </RouterLink>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contribute CTA -->
+    <section class="section">
+      <div class="container">
+        <div class="cta card">
+          <div class="cta__text">
+            <span class="eyebrow">Built by the community</span>
+            <h2>Healthcare tooling shouldn't be locked behind a vendor.</h2>
+            <p class="muted">
+              HL7X is a volunteer effort. If you've ever fought an interface engine
+              at 2&nbsp;a.m., you can make the next engineer's night easier.
+            </p>
+          </div>
+          <div class="cta__actions">
+            <RouterLink to="/contribute" class="btn btn-primary">Start contributing</RouterLink>
+            <a class="btn btn-ghost" href="https://github.com/hl7x" target="_blank" rel="noopener">View on GitHub</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
 </template>
 
 <style scoped>
