@@ -83,6 +83,12 @@ import { tools, statusMeta } from '@/data/tools.js'
 .row:hover {
   border-color: var(--accent-border);
 }
+/* Grid items default to min-width:auto, so a long install command forces
+   its track wider than its 1fr share. Cap both tracks. */
+.row__main,
+.row__side {
+  min-width: 0;
+}
 .row__head {
   display: flex;
   align-items: center;

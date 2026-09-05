@@ -75,6 +75,7 @@ async function copy() {
 .cmd {
   display: flex;
   align-items: stretch;
+  min-width: 0;
   gap: 8px;
   background: var(--code-bg);
   border: 1px solid var(--border-strong);
