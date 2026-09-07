@@ -29,7 +29,12 @@ const guides = [
   },
   {
     title: 'Simulating scenarios',
-    body: 'Run admit, discharge, pre-admit, and referral flows as single events or full sequences.',
+    body: 'Run admit, transfer, discharge, register, and pre-admit events as placebo send hl7 subcommands.',
+    href: 'https://github.com/hl7x/placebo'
+  },
+  {
+    title: 'Listening for messages',
+    body: 'Print what arrives on the listening port with placebo listen hl7, on 9700 or a --port of your choosing.',
     href: 'https://github.com/hl7x/placebo'
   }
 ]
@@ -131,10 +136,15 @@ onBeforeUnmount(() => observer?.disconnect())
           <li>
             <strong>Command-line first.</strong> Tools run in the terminal and
             write to files or a socket, so they fit the workflows you have.
+            Work is selected with commands and subcommands —
+            <code class="ic">placebo &lt;command&gt; [subcommand] [arguments]
+            [options]</code> — with flags reserved for options like
+            <code class="ic">--port</code>.
           </li>
           <li>
             <strong>Scenario-driven.</strong> HL7 sending models real events —
-            admits, discharges, pre-admits, and referrals — not just lone messages.
+            admits, transfers, discharges, registrations, and pre-admits — not
+            just lone messages.
           </li>
           <li>
             <strong>Standards-aware.</strong> Messages follow HL7 v2 structure
@@ -166,10 +176,13 @@ onBeforeUnmount(() => observer?.disconnect())
         <h2>Reference</h2>
         <p>
           Each tool documents its full command surface in its repository's
-          README and <code class="ic">--help</code> output:
+          README and its built-in help — run
+          <code class="ic">placebo help</code> for the command list, or
+          <code class="ic">placebo help send</code> for one command's
+          subcommands:
         </p>
         <ul class="docs__list">
-          <li><a href="https://github.com/hl7x/placebo" target="_blank" rel="noopener">placebo reference</a> — file, send, and read commands and their sub-commands</li>
+          <li><a href="https://github.com/hl7x/placebo" target="_blank" rel="noopener">placebo reference</a> — the <code class="ic">file</code>, <code class="ic">send</code>, <code class="ic">listen</code>, and <code class="ic">read</code> commands and their subcommands</li>
           <li><strong>sugarpill</strong> — currently part of placebo via <code class="ic">placebo read sugarpill</code>; standalone docs land as it matures</li>
         </ul>
       </section>

@@ -14,11 +14,11 @@ const features = [
   },
   {
     title: 'HL7 message sending',
-    body: 'Fire HL7 messages at an interface engine (default 127.0.0.1:9700) to exercise your channels end to end.'
+    body: 'Fire HL7 messages at an interface engine (default 127.0.0.1:9700), then listen on the same port to print what comes back.'
   },
   {
-    title: 'Scenario sub-commands',
-    body: 'Admit, discharge, pre-admit, and referral flows built in — as single events or full admit-then-discharge sequences.'
+    title: 'Scenario subcommands',
+    body: 'Admit, transfer, discharge, register, and pre-admit built in — one subcommand per ADT event.'
   },
   {
     title: 'Readable HL7',
@@ -28,6 +28,48 @@ const features = [
     title: 'Synthetic only',
     body: 'placebo generates fake data exclusively. No real PHI ever touches your machine.'
   }
+]
+
+const commands = [
+  {
+    name: 'file',
+    usage: 'placebo file csv [number of patients]',
+    body: 'Create a file of fake patient data in /tmp/ — csv for a spreadsheet, hl7 for a message.'
+  },
+  {
+    name: 'send',
+    usage: 'placebo send hl7 [subcommand]',
+    body: 'Send an HL7 message built from fake patient data. With no subcommand you get an ADT^A01 admit opened in your editor first.'
+  },
+  {
+    name: 'listen',
+    usage: 'placebo listen hl7',
+    body: 'Receive and print HL7 messages arriving on the listening port.'
+  },
+  {
+    name: 'read',
+    usage: 'placebo read sugarpill <file>',
+    body: 'Break an HL7 message down into a readable structure.'
+  },
+  {
+    name: 'help',
+    usage: 'placebo help send',
+    body: 'Show help for a command, including every subcommand it accepts.'
+  }
+]
+
+const scenarios = [
+  { name: 'admit', event: 'ADT^A01', body: 'Admit a patient.' },
+  { name: 'transfer', event: 'ADT^A02', body: 'Transfer a patient.' },
+  { name: 'discharge', event: 'ADT^A03', body: 'Discharge a patient.' },
+  { name: 'register', event: 'ADT^A04', body: 'Register a patient.' },
+  { name: 'pre-admit', event: 'ADT^A05', body: 'Establish preadmit information.' }
+]
+
+const sendHelpers = [
+  { name: 'file <path>', body: 'Edit an existing HL7 file and send it when you are done.' },
+  { name: 'last', body: 'Reopen the last sent HL7 message in an interactive prompt.' },
+  { name: 'sugarpill', body: 'Build a message through an easy-to-read interactive prompt.' }
 ]
 
 const segments = [
@@ -74,9 +116,9 @@ const readOutput = `{
         </p>
         <p class="ph__sub muted">
           A command-line tool for healthcare testing: generate fake patients as
-          CSV, send HL7 messages that simulate real admit, discharge, and
-          referral scenarios, and read raw HL7 into a structure you can actually
-          follow.
+          CSV, send HL7 messages that simulate real admit, transfer, and
+          discharge scenarios, and read raw HL7 into a structure you can
+          actually follow.
         </p>
 
         <div class="ph__install">
@@ -101,7 +143,7 @@ const readOutput = `{
           Generate an HL7 file for a fresh fake patient, written to
           <code>/tmp/</code>:
         </p>
-        <CommandBlock command="placebo --file hl7" />
+        <CommandBlock command="placebo file hl7" />
         <p class="muted demo__note">
           Need a spreadsheet instead? <code>placebo file csv 4</code> writes a
           CSV of four fake patients.
@@ -120,7 +162,7 @@ const readOutput = `{
           Stop counting pipes and carets. Feed placebo an HL7 file and the
           <code>read sugarpill</code> command hands you structured JSON:
         </p>
-        <CommandBlock command="placebo --read sugarpill message.hl7" />
+        <CommandBlock command="placebo read sugarpill message.hl7" />
         <p class="muted demo__note">
           <strong>sugarpill</strong> is an early-stage tool that lives inside
           placebo today — and is growing into its own standalone CLI.
@@ -148,12 +190,75 @@ const readOutput = `{
       </div>
     </section>
 
+    <!-- Commands -->
+    <section class="container section">
+      <h2 class="h-rule center-rule">Commands</h2>
+      <p class="cmd-intro muted center">
+        placebo is driven by commands and subcommands, not flags:
+        <code>placebo &lt;command&gt; [subcommand] [arguments] [options]</code>.
+      </p>
+
+      <div class="cmds">
+        <div v-for="c in commands" :key="c.name" class="cmd-row">
+          <div class="cmd-row__head">
+            <span class="cmd-row__name mono">{{ c.name }}</span>
+            <code class="cmd-row__usage mono">{{ c.usage }}</code>
+          </div>
+          <p class="muted">{{ c.body }}</p>
+        </div>
+      </div>
+
+      <div class="sub-grid">
+        <div>
+          <h3 class="sub-head">Preset ADT scenarios</h3>
+          <p class="muted sub-note">
+            Each one is a subcommand of <code>placebo send hl7</code>.
+          </p>
+          <ul class="sub-list">
+            <li v-for="s in scenarios" :key="s.name">
+              <span class="sub-list__name mono">{{ s.name }}</span>
+              <span class="sub-list__event mono">{{ s.event }}</span>
+              <span class="muted">{{ s.body }}</span>
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="sub-head">Auxiliary send subcommands</h3>
+          <p class="muted sub-note">
+            Build or replay a message instead of generating one outright.
+          </p>
+          <ul class="sub-list">
+            <li v-for="h in sendHelpers" :key="h.name">
+              <span class="sub-list__name mono">{{ h.name }}</span>
+              <span class="muted">{{ h.body }}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="port">
+        <h3 class="sub-head">Choosing a port</h3>
+        <p class="muted">
+          <code>send</code> and <code>listen</code> use port
+          <code>9700</code> by default. Override it with the
+          <code>--port</code> option, which may be given before the command or
+          after the subcommand:
+        </p>
+        <CommandBlock command="placebo send hl7 --port 8500" />
+        <CommandBlock command="placebo --port 8500 listen hl7" />
+        <p class="muted">
+          It can also be set permanently with the
+          <code>PLACEBO_PORT</code> environment variable:
+        </p>
+        <CommandBlock command="export PLACEBO_PORT=8500" />
+      </div>
+    </section>
+
     <!-- Supported segments -->
     <section class="container section">
       <h2 class="h-rule center-rule">Supported segments</h2>
       <p class="seg-intro muted center">
-        placebo understands the segments you actually see in ADT and referral
-        traffic:
+        placebo understands the segments you actually see in ADT traffic:
       </p>
       <div class="segs">
         <span v-for="s in segments" :key="s" class="seg mono">{{ s }}</span>
@@ -166,19 +271,27 @@ const readOutput = `{
       <div class="recipes">
         <div class="recipe">
           <p class="recipe__label muted"># Four fake patients as a CSV</p>
-          <CommandBlock command="placebo --file csv 4" />
+          <CommandBlock command="placebo file csv 4" />
         </div>
         <div class="recipe">
           <p class="recipe__label muted"># Admit a patient (ADT^A01)</p>
-          <CommandBlock command="placebo --send hl7 post-admit" />
+          <CommandBlock command="placebo send hl7 admit" />
         </div>
         <div class="recipe">
-          <p class="recipe__label muted"># Admit then discharge (ADT^A01 + ADT^A03)</p>
-          <CommandBlock command="placebo --send hl7 post-discharge" />
+          <p class="recipe__label muted"># Discharge a patient (ADT^A03)</p>
+          <CommandBlock command="placebo send hl7 discharge" />
         </div>
         <div class="recipe">
-          <p class="recipe__label muted"># Patient referral (REF^I12)</p>
-          <CommandBlock command="placebo --send hl7 referral" />
+          <p class="recipe__label muted"># Edit an existing message, then send it</p>
+          <CommandBlock command="placebo send hl7 file /tmp/import_hl7.txt" />
+        </div>
+        <div class="recipe">
+          <p class="recipe__label muted"># Print what arrives on port 8500</p>
+          <CommandBlock command="placebo listen hl7 --port 8500" />
+        </div>
+        <div class="recipe">
+          <p class="recipe__label muted"># Full help for a command</p>
+          <CommandBlock command="placebo help send" />
         </div>
       </div>
     </section>
@@ -352,6 +465,117 @@ const readOutput = `{
   border: 1px solid var(--accent-border);
 }
 
+/* Commands */
+.cmd-intro {
+  max-width: 60ch;
+  margin: -8px auto 26px;
+  font-size: 0.98rem;
+}
+.cmd-intro code,
+.port code,
+.sub-note code {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  padding: 1px 6px;
+  border-radius: 5px;
+  font-size: 0.85em;
+  color: var(--text);
+}
+.cmds {
+  display: flex;
+  flex-direction: column;
+  max-width: 920px;
+  margin-inline: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  overflow: hidden;
+}
+.cmd-row {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.cmd-row:last-child {
+  border-bottom: none;
+}
+.cmd-row__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.cmd-row__name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+.cmd-row__usage {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+.cmd-row p {
+  font-size: 0.9rem;
+}
+
+.sub-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 32px;
+  max-width: 920px;
+  margin: 36px auto 0;
+}
+.sub-head {
+  font-size: 1rem;
+  margin-bottom: 6px;
+}
+.sub-note {
+  font-size: 0.88rem;
+  margin-bottom: 12px;
+}
+.sub-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.sub-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+.sub-list__name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 6px;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-border);
+}
+.sub-list__event {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.port {
+  max-width: 920px;
+  margin: 40px auto 0;
+}
+.port p {
+  font-size: 0.92rem;
+  margin-bottom: 12px;
+}
+.port :deep(.cmd) + p {
+  margin-top: 16px;
+}
+
 /* Features */
 .feat-grid {
   display: grid;
@@ -464,6 +688,10 @@ const readOutput = `{
   }
   .feat-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+  .sub-grid {
+    grid-template-columns: 1fr;
+    gap: 28px;
   }
 }
 @media (max-width: 560px) {
