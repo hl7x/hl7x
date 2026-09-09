@@ -8,7 +8,7 @@ export const tools = [
     tagline: 'Fake patient data & HL7 messages for testing',
     description:
       'Generate fake patient data, send HL7 messages that simulate real admit, transfer, and discharge scenarios, and read raw HL7 into a structure you can actually follow.',
-    install: 'git clone https://github.com/hl7x/placebo && cd placebo && sudo ./installer.sh',
+    install: 'brew install hl7x/tap/placebo',
     status: 'stable',
     tags: ['HL7', 'CLI', 'testing']
   },
