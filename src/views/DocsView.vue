@@ -103,7 +103,7 @@ onBeforeUnmount(() => observer?.disconnect())
           the files or messages it produces.
         </p>
         <p>
-          Install <code>placebo</code> from source (see
+          Install <code>placebo</code> (see
           <a href="#install">Installing tools</a>), then generate your first HL7
           file for a fake patient:
         </p>
@@ -113,15 +113,32 @@ onBeforeUnmount(() => observer?.disconnect())
       <section id="install">
         <h2>Installing tools</h2>
         <p>
-          Tools install from source with a provided installer script. Clone the
-          repository, then run the installer with elevated permissions:
+          Tagged releases are built by GoReleaser and published for Linux,
+          macOS, and Windows on both <code class="ic">amd64</code> and
+          <code class="ic">arm64</code>. On macOS or Linux, the shortest route
+          is Homebrew:
+        </p>
+        <CommandBlock command="brew install hl7x/tap/placebo" />
+        <p>
+          Linux <code class="ic">.deb</code>, <code class="ic">.rpm</code>, and
+          <code class="ic">.apk</code> packages and plain release archives are
+          on the
+          <a href="https://github.com/hl7x/placebo/releases/latest" target="_blank" rel="noopener">releases page</a>.
+          With a Go toolchain installed you can also build it yourself:
+        </p>
+        <CommandBlock command="go install github.com/hl7x/placebo/cmd/placebo@latest" />
+        <p>
+          To install from source instead, clone the repository and run its
+          installer with elevated permissions —
+          <code class="ic">sudo</code> is required because it places the binary
+          on your <code class="ic">PATH</code>:
         </p>
         <CommandBlock command="git clone https://github.com/hl7x/placebo" />
-        <CommandBlock command="cd placebo && sudo ./installer.sh" />
+        <CommandBlock command="cd placebo && sudo ./install.sh" />
         <p>
-          <code class="ic">sudo</code> is required because the installer places
-          the binary on your <code class="ic">PATH</code>. No package managers
-          or runtimes are needed.
+          Confirm whichever route you took with
+          <code class="ic">placebo version</code>. Every install option is
+          listed on the <RouterLink to="/placebo">placebo page</RouterLink>.
         </p>
       </section>
 

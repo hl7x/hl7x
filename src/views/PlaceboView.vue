@@ -1,4 +1,5 @@
 <script setup>
+import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import CommandBlock from '@/components/CommandBlock.vue'
 import CodeBlock from '@/components/CodeBlock.vue'
@@ -14,7 +15,7 @@ const features = [
   },
   {
     title: 'HL7 message sending',
-    body: 'Fire HL7 messages at an interface engine (default 127.0.0.1:9700), then listen on the same port to print what comes back.'
+    body: 'Messages go out MLLP-framed, so Mirth, Rhapsody, Cloverleaf, Iguana, and Epic Bridges accept them. listen receives them back and replies with an MSA|AA ack.'
   },
   {
     title: 'Scenario subcommands',
@@ -72,6 +73,55 @@ const sendHelpers = [
   { name: 'sugarpill', body: 'Build a message through an easy-to-read interactive prompt.' }
 ]
 
+const installTabs = [
+  {
+    id: 'brew',
+    label: 'Homebrew',
+    blurb: 'macOS and Linux. The tap keeps placebo up to date alongside the rest of your formulae.',
+    steps: [{ command: 'brew install hl7x/tap/placebo' }],
+    note: 'Upgrade later with brew upgrade placebo.'
+  },
+  {
+    id: 'linux',
+    label: 'Linux packages',
+    blurb: 'Every release ships .deb, .rpm, and .apk packages. Download the one for your distribution and architecture, then install it.',
+    steps: [
+      { label: 'Debian, Ubuntu', command: 'sudo dpkg -i placebo_<version>_amd64.deb' },
+      { label: 'Fedora, RHEL, openSUSE', command: 'sudo rpm -i placebo-<version>.x86_64.rpm' },
+      { label: 'Alpine', command: 'sudo apk add --allow-untrusted placebo_<version>_x86_64.apk' }
+    ]
+  },
+  {
+    id: 'binary',
+    label: 'Pre-built binary',
+    blurb: 'Archives are named placebo_<version>_<os>_<arch>.tar.gz (.zip on Windows). Substitute linux/darwin/windows and amd64/arm64 as needed.',
+    code: `VERSION=0.1.0
+curl -sSL -o placebo.tar.gz \\
+  https://github.com/hl7x/placebo/releases/download/v\${VERSION}/placebo_\${VERSION}_darwin_arm64.tar.gz
+tar -xzf placebo.tar.gz
+sudo mv placebo /usr/local/bin/`,
+    steps: [{ label: 'Verify the download', command: 'sha256sum --check --ignore-missing checksums.txt' }],
+    note: 'macOS binaries are unsigned. If Gatekeeper quarantines one, clear it with xattr -dr com.apple.quarantine /usr/local/bin/placebo — Homebrew does this for you.'
+  },
+  {
+    id: 'go',
+    label: 'Go',
+    blurb: 'Already have a Go toolchain? Install straight from the module path.',
+    steps: [{ command: 'go install github.com/hl7x/placebo/cmd/placebo@latest' }]
+  },
+  {
+    id: 'source',
+    label: 'From source',
+    blurb: 'Clone the repository and run the installer script. It needs elevated permissions to put the binary on your PATH.',
+    steps: [
+      { command: 'git clone https://github.com/hl7x/placebo' },
+      { command: 'cd placebo && sudo ./install.sh' }
+    ]
+  }
+]
+
+const activeTab = ref('brew')
+
 const segments = [
   'MSH', 'EVN', 'PID', 'PD1', 'ROL', 'DB1', 'ARV', 'NK1', 'PV1',
   'PV2', 'GT1', 'IN1', 'AL1', 'DG1', 'ORC', 'OBR', 'NTE', 'OBX'
@@ -122,13 +172,17 @@ const readOutput = `{
         </p>
 
         <div class="ph__install">
-          <CommandBlock command="sudo ./installer.sh" />
+          <CommandBlock command="brew install hl7x/tap/placebo" />
+          <p class="ph__install-alt muted">
+            Also available as a Linux package, a release archive, or
+            <code>go install</code> — <a href="#install">see all install options</a>.
+          </p>
         </div>
 
         <div class="ph__links">
           <a href="https://github.com/hl7x/placebo" target="_blank" rel="noopener">Source</a>
           <span aria-hidden="true">·</span>
-          <a href="#install">How to install</a>
+          <a href="https://github.com/hl7x/placebo/releases/latest" target="_blank" rel="noopener">Releases</a>
           <span aria-hidden="true">·</span>
           <RouterLink to="/docs">Docs</RouterLink>
         </div>
@@ -299,19 +353,54 @@ const readOutput = `{
     <!-- Install -->
     <section id="install" class="container section">
       <h2 class="h-rule center-rule">Install</h2>
-      <div class="install-grid">
-        <div class="install-opt">
-          <h3>1 · Clone the repo</h3>
-          <CommandBlock command="git clone https://github.com/hl7x/placebo" />
+      <p class="cmd-intro muted center">
+        Tagged releases are built by GoReleaser and published for Linux, macOS,
+        and Windows on both <code>amd64</code> and <code>arm64</code>. Pick
+        whichever route fits your machine.
+      </p>
+
+      <div class="install">
+        <div class="install__tabs" role="tablist" aria-label="Installation method">
+          <button
+            v-for="t in installTabs"
+            :key="t.id"
+            class="install__tab"
+            type="button"
+            role="tab"
+            :aria-selected="activeTab === t.id"
+            :class="{ 'is-active': activeTab === t.id }"
+            @click="activeTab = t.id"
+          >
+            {{ t.label }}
+          </button>
         </div>
-        <div class="install-opt">
-          <h3>2 · Run the installer</h3>
-          <CommandBlock command="cd placebo && sudo ./install.sh" />
+
+        <div
+          v-for="t in installTabs"
+          v-show="activeTab === t.id"
+          :key="t.id"
+          class="install__panel"
+          role="tabpanel"
+        >
+          <p class="muted install__blurb">{{ t.blurb }}</p>
+          <CodeBlock v-if="t.code" label="terminal" :code="t.code" />
+          <div v-for="(step, i) in t.steps" :key="i" class="install__step">
+            <p v-if="step.label" class="recipe__label muted"># {{ step.label }}</p>
+            <CommandBlock :command="step.command" />
+          </div>
+          <p v-if="t.note" class="muted install__note">{{ t.note }}</p>
         </div>
       </div>
+
+      <div class="install__verify">
+        <p class="recipe__label muted"># Confirm whichever route you took</p>
+        <CommandBlock command="placebo version" />
+      </div>
+
       <p class="install-note muted center">
-        The installer needs elevated permissions, so run it with
-        <code>sudo</code>. That's it — no package managers, no runtimes.
+        Packages and archives for every platform live on the
+        <a href="https://github.com/hl7x/placebo/releases/latest" target="_blank" rel="noopener">releases page</a>,
+        each with a <code>checksums.txt</code> to verify against.
       </p>
     </section>
 
@@ -387,6 +476,14 @@ const readOutput = `{
   margin-top: 32px;
   width: 100%;
   max-width: 480px;
+}
+.ph__install-alt {
+  margin-top: 12px;
+  font-size: 0.88rem;
+}
+.ph__install-alt code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
 }
 .ph__links {
   margin-top: 18px;
@@ -622,19 +719,59 @@ const readOutput = `{
 }
 
 /* Install */
-.install-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 28px 32px;
-  max-width: 920px;
+.install {
+  max-width: 760px;
   margin-inline: auto;
 }
-.install-opt h3 {
+.install__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 26px;
+}
+.install__tab {
+  font-family: var(--font-sans);
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 7px 16px;
+  cursor: pointer;
+  transition: all 0.15s var(--ease);
+}
+.install__tab:hover {
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+.install__tab.is-active {
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-color: var(--accent-border);
+}
+.install__blurb {
   font-size: 0.95rem;
-  margin-bottom: 10px;
+  margin-bottom: 18px;
+}
+.install__panel > * + * {
+  margin-top: 16px;
+}
+.install__step + .install__step {
+  margin-top: 14px;
+}
+.install__note {
+  font-size: 0.88rem;
+}
+.install__verify {
+  max-width: 760px;
+  margin: 34px auto 0;
+  padding-top: 26px;
+  border-top: 1px solid var(--border);
 }
 .install-note {
-  max-width: 52ch;
+  max-width: 60ch;
   margin: 22px auto 0;
   font-size: 0.95rem;
 }
@@ -696,8 +833,7 @@ const readOutput = `{
 }
 @media (max-width: 560px) {
   .feat-grid,
-  .recipes,
-  .install-grid {
+  .recipes {
     grid-template-columns: 1fr;
   }
 }
