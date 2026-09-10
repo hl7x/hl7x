@@ -1,5 +1,6 @@
 <script setup>
 import { RouterLink } from 'vue-router'
+import BrandAnimation from '@/components/BrandAnimation.vue'
 import { tools, statusMeta } from '@/data/tools.js'
 
 const principles = [
@@ -27,18 +28,19 @@ const principles = [
     <!-- Hero -->
     <section class="hero">
       <div class="container hero__inner">
-        <span class="badge">Open source · Built by the community</span>
-        <h1 class="hero__title">
+        <BrandAnimation class="hero__mark" />
+        <span class="badge hero__reveal">Open source · Built by the community</span>
+        <h1 class="hero__title hero__reveal">
           Developer tools for
           <span class="hero__accent">healthcare integration</span>
         </h1>
-        <p class="hero__sub">
+        <p class="hero__sub hero__reveal">
           HL7X builds focused, command-line tools for the engineers who work with
           HL7 — generating, sending, and reading clinical messages. Free,
           scriptable, and built in the open.
         </p>
 
-        <div class="hero__cta">
+        <div class="hero__cta hero__reveal">
           <RouterLink to="/placebo" class="btn btn-primary">
             Explore placebo
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
@@ -134,7 +136,7 @@ const principles = [
 /* Hero */
 .hero {
   position: relative;
-  padding-block: 96px 64px;
+  padding-block: 68px 64px;
   overflow: hidden;
 }
 .hero::before {
@@ -155,6 +157,50 @@ const principles = [
   align-items: center;
   text-align: center;
 }
+
+/* The mark resolves on its own timing; the copy under it settles in behind,
+   staggered, so the whole hero reads as one movement rather than a logo with
+   a page bolted underneath. */
+.hero__mark {
+  margin-bottom: 26px;
+}
+@media (max-width: 640px) {
+  .hero__mark {
+    --mark: 84px;
+    margin-bottom: 20px;
+  }
+}
+.hero__reveal {
+  animation: hero-settle 0.75s var(--ease) both;
+}
+.hero__reveal:nth-of-type(1) {
+  animation-delay: 0.08s;
+}
+.hero__title {
+  animation-delay: 0.16s;
+}
+.hero__sub {
+  animation-delay: 0.24s;
+}
+.hero__cta {
+  animation-delay: 0.32s;
+}
+@keyframes hero-settle {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero__reveal {
+    animation-delay: 0s;
+  }
+}
+
 .hero__title {
   margin-top: 22px;
   font-size: clamp(2.4rem, 5.4vw, 3.9rem);
