@@ -8,6 +8,13 @@ let hasPlayed = false
 <script setup>
 import { onMounted, ref } from 'vue'
 
+defineProps({
+  // Render the HL7X wordmark beside the mark as one lockup. It arrives on the
+  // animation's last beat, so the strip collapsing into the tile hands its
+  // horizontal movement straight on to the name.
+  wordmark: { type: Boolean, default: false }
+})
+
 // Size comes from the --mark custom property (default below), so a consumer
 // can scale it in a media query. The SVG draws wider than that while the
 // message strip is still extended; the wrapper only reserves the space the
@@ -19,47 +26,77 @@ const reduced =
 
 const playing = ref(!hasPlayed && !reduced)
 
-onMounted(() => {
+// While the name is still hidden it already reserves its width, which would
+// leave the mark — and the whole message strip — sitting left of centre for
+// most of the reveal. So the lockup starts pushed right by half the name's
+// footprint and slides back as the name arrives: the mark holds the centre
+// alone, then moves over to make room. The CSS carries an estimate for the
+// first frames; this replaces it with the real measurement.
+const word = ref(null)
+const shift = ref(null)
+
+onMounted(async () => {
   hasPlayed = true
+  if (!playing.value) return
+  const measure = () => {
+    const el = word.value
+    if (!el) return
+    const gap = parseFloat(getComputedStyle(el.parentElement).gap) || 0
+    shift.value = `${(el.getBoundingClientRect().width + gap) / 2}px`
+  }
+  measure()
+  try {
+    await document.fonts?.ready
+    measure()
+  } catch {
+    /* no font loading API — the first measurement stands */
+  }
 })
 </script>
 
 <template>
-  <div class="anim" :class="{ 'is-resolved': !playing }">
-    <svg
-      class="anim__svg"
-      viewBox="0 0 380 320"
-      role="img"
-      aria-labelledby="brand-anim-title"
-      focusable="false"
-    >
-      <title id="brand-anim-title">HL7X</title>
-      <desc>
-        The HL7 encoding characters type out, the field separators and component
-        separator light up, and the strip contracts into the HL7X mark.
-      </desc>
+  <div
+    class="brand"
+    :class="{ 'is-resolved': !playing }"
+    :style="shift ? { '--shift': shift } : null"
+  >
+    <div class="brand__mark">
+      <svg
+        class="brand__svg"
+        viewBox="0 0 380 320"
+        role="img"
+        aria-labelledby="brand-anim-title"
+        focusable="false"
+      >
+        <title id="brand-anim-title">HL7X</title>
+        <desc>
+          The HL7 encoding characters type out, the field separators and component
+          separator light up, and the strip contracts into the HL7X mark.
+        </desc>
 
-      <rect class="tile" x="94" y="91" width="192" height="192" rx="45" />
-      <rect class="panel" x="113" y="110" width="154" height="154" rx="36" />
+        <rect class="tile" x="94" y="91" width="192" height="192" rx="45" />
+        <rect class="panel" x="113" y="110" width="154" height="154" rx="36" />
 
-      <g class="st dim" style="--x: 183px; animation-delay: 0.47s">
-        <text class="ch" x="0" y="18" text-anchor="middle">~</text>
-      </g>
-      <g class="st dim" style="--x: 220px; animation-delay: 0.58s">
-        <text class="ch" x="0" y="18" text-anchor="middle">&#92;</text>
-      </g>
-      <g class="st dim" style="--x: 257px; animation-delay: 0.69s">
-        <text class="ch" x="0" y="18" text-anchor="middle">&amp;</text>
-      </g>
+        <g class="st dim" style="--x: 183px; animation-delay: 0.47s">
+          <text class="ch" x="0" y="18" text-anchor="middle">~</text>
+        </g>
+        <g class="st dim" style="--x: 220px; animation-delay: 0.58s">
+          <text class="ch" x="0" y="18" text-anchor="middle">&#92;</text>
+        </g>
+        <g class="st dim" style="--x: 257px; animation-delay: 0.69s">
+          <text class="ch" x="0" y="18" text-anchor="middle">&amp;</text>
+        </g>
 
-      <rect class="st p0" x="-5.25" y="-42" width="10.5" height="84" rx="5.25" />
-      <rect class="st p5" x="-5.25" y="-42" width="10.5" height="84" rx="5.25" />
+        <rect class="st p0" x="-5.25" y="-42" width="10.5" height="84" rx="5.25" />
+        <rect class="st p5" x="-5.25" y="-42" width="10.5" height="84" rx="5.25" />
 
-      <g class="caret">
-        <rect class="st ha" x="-18" y="-5.25" width="36" height="10.5" rx="5.25" />
-        <rect class="st hb" x="-18" y="-5.25" width="36" height="10.5" rx="5.25" />
-      </g>
-    </svg>
+        <g class="caret">
+          <rect class="st ha" x="-18" y="-5.25" width="36" height="10.5" rx="5.25" />
+          <rect class="st hb" x="-18" y="-5.25" width="36" height="10.5" rx="5.25" />
+        </g>
+      </svg>
+    </div>
+    <span v-if="wordmark" ref="word" class="brand__word" aria-hidden="true">HL7X</span>
   </div>
 </template>
 
@@ -75,8 +112,8 @@ onMounted(() => {
    are absolute, so the duration is not a knob — changing it desyncs them.
    -------------------------------------------------------------------------- */
 
-.anim {
-  --mark: 112px;
+.brand {
+  --mark: 96px;
 
   /* Light theme: the same solid accent tile the header mark uses. */
   --mark-tile: var(--accent);
@@ -85,13 +122,55 @@ onMounted(() => {
   --mark-ink: var(--teal-50);
   --mark-mint: var(--teal-200);
 
-  position: relative;
-  width: var(--mark);
-  height: var(--mark);
-  margin-inline: auto;
+  /* Half the name's footprint. Replaced with the measured value on mount;
+     this estimate only has to hold for the first frames. */
+  --shift: calc(var(--mark) * 0.59);
+
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--mark) * 0.18);
+  animation: lockup 4.2s cubic-bezier(0.2, 0.8, 0.3, 1) 1 both;
+}
+@keyframes lockup {
+  0%,
+  83.33% {
+    transform: translateX(var(--shift));
+  }
+  100% {
+    transform: none;
+  }
 }
 
-:root[data-theme='dark'] .anim {
+.brand__mark {
+  position: relative;
+  flex: none;
+  width: var(--mark);
+  height: var(--mark);
+}
+
+/* The name lands as the strip finishes collapsing, on the same beat the
+   lockup slides over to make room for it. */
+.brand__word {
+  font-size: calc(var(--mark) * 0.4);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1;
+  color: var(--text);
+  animation: word 4.2s cubic-bezier(0.2, 0.8, 0.3, 1) 1 both;
+}
+@keyframes word {
+  0%,
+  83.33% {
+    opacity: 0;
+    transform: translateX(calc(var(--mark) * -0.08));
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+:root[data-theme='dark'] .brand {
   --mark-tile: #0b120f;
   --mark-panel: #101c17;
   --mark-edge: rgba(45, 212, 191, 0.22);
@@ -99,7 +178,7 @@ onMounted(() => {
   --mark-mint: var(--teal-300);
 }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) .anim {
+  :root:not([data-theme]) .brand {
     --mark-tile: #0b120f;
     --mark-panel: #101c17;
     --mark-edge: rgba(45, 212, 191, 0.22);
@@ -110,7 +189,7 @@ onMounted(() => {
 
 /* The artwork needs room to run wide, so the SVG overflows the reserved box
    and is nudged up to sit the finished tile dead centre in it. */
-.anim__svg {
+.brand__svg {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -364,37 +443,44 @@ onMounted(() => {
 
 /* Already seen this page load, or the visitor asked for less motion:
    render the finished mark with no animation at all. */
-.anim.is-resolved .tile,
-.anim.is-resolved .panel,
-.anim.is-resolved .dim,
-.anim.is-resolved .p0,
-.anim.is-resolved .p5,
-.anim.is-resolved .caret,
-.anim.is-resolved .ha,
-.anim.is-resolved .hb {
+.brand.is-resolved,
+.brand.is-resolved .brand__word,
+.brand.is-resolved .tile,
+.brand.is-resolved .panel,
+.brand.is-resolved .dim,
+.brand.is-resolved .p0,
+.brand.is-resolved .p5,
+.brand.is-resolved .caret,
+.brand.is-resolved .ha,
+.brand.is-resolved .hb {
   animation: none;
 }
-.anim.is-resolved .dim {
+.brand.is-resolved,
+.brand.is-resolved .brand__word {
+  opacity: 1;
+  transform: none;
+}
+.brand.is-resolved .dim {
   opacity: 0;
 }
-.anim.is-resolved .p0 {
+.brand.is-resolved .p0 {
   opacity: 1;
   fill: var(--mark-mint);
   transform: translate(190px, 206px) rotate(45deg) scale(1.3);
 }
-.anim.is-resolved .p5 {
+.brand.is-resolved .p5 {
   opacity: 1;
   fill: var(--mark-mint);
   transform: translate(190px, 206px) rotate(-45deg) scale(1.3);
 }
-.anim.is-resolved .caret {
+.brand.is-resolved .caret {
   opacity: 1;
   fill: var(--mark-mint);
 }
-.anim.is-resolved .ha {
+.brand.is-resolved .ha {
   transform: translate(177.65px, 142.05px) rotate(-41.82deg) scale(1.3);
 }
-.anim.is-resolved .hb {
+.brand.is-resolved .hb {
   transform: translate(202.35px, 142.05px) rotate(41.82deg) scale(1.3);
 }
 </style>

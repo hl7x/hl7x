@@ -28,7 +28,7 @@ const principles = [
     <!-- Hero -->
     <section class="hero">
       <div class="container hero__inner">
-        <BrandAnimation class="hero__mark" />
+        <BrandAnimation class="hero__lockup" wordmark />
         <span class="badge hero__reveal">Open source · Built by the community</span>
         <h1 class="hero__title hero__reveal">
           Developer tools for
@@ -158,16 +158,17 @@ const principles = [
   text-align: center;
 }
 
-/* The mark resolves on its own timing; the copy under it settles in behind,
-   staggered, so the whole hero reads as one movement rather than a logo with
-   a page bolted underneath. */
-.hero__mark {
-  margin-bottom: 26px;
+/* The lockup resolves on its own timing; the copy below settles in behind it,
+   staggered, so the hero reads as one movement rather than a logo with a page
+   bolted underneath. Lockup and badge sit close enough to group, with the real
+   breathing room saved for the headline — two clusters, not five even rows. */
+.hero__lockup {
+  margin-bottom: 20px;
 }
 @media (max-width: 640px) {
-  .hero__mark {
-    --mark: 84px;
-    margin-bottom: 20px;
+  .hero__lockup {
+    --mark: 72px;
+    margin-bottom: 16px;
   }
 }
 .hero__reveal {
@@ -202,7 +203,7 @@ const principles = [
 }
 
 .hero__title {
-  margin-top: 22px;
+  margin-top: 34px;
   font-size: clamp(2.4rem, 5.4vw, 3.9rem);
   font-weight: 800;
   letter-spacing: -0.035em;
