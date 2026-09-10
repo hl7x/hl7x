@@ -29,7 +29,6 @@ const principles = [
     <section class="hero">
       <div class="container hero__inner">
         <BrandAnimation class="hero__lockup" wordmark />
-        <span class="badge hero__reveal">Open source · Built by the community</span>
         <h1 class="hero__title hero__reveal">
           Developer tools for
           <span class="hero__accent">healthcare integration</span>
@@ -160,31 +159,27 @@ const principles = [
 
 /* The lockup resolves on its own timing; the copy below settles in behind it,
    staggered, so the hero reads as one movement rather than a logo with a page
-   bolted underneath. Lockup and badge sit close enough to group, with the real
-   breathing room saved for the headline — two clusters, not five even rows. */
+   bolted underneath. */
 .hero__lockup {
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 }
 @media (max-width: 640px) {
   .hero__lockup {
     --mark: 72px;
-    margin-bottom: 16px;
+    margin-bottom: 24px;
   }
 }
 .hero__reveal {
   animation: hero-settle 0.75s var(--ease) both;
 }
-.hero__reveal:nth-of-type(1) {
+.hero__title {
   animation-delay: 0.08s;
 }
-.hero__title {
+.hero__sub {
   animation-delay: 0.16s;
 }
-.hero__sub {
-  animation-delay: 0.24s;
-}
 .hero__cta {
-  animation-delay: 0.32s;
+  animation-delay: 0.24s;
 }
 @keyframes hero-settle {
   from {
@@ -203,7 +198,7 @@ const principles = [
 }
 
 .hero__title {
-  margin-top: 34px;
+  margin-top: 0;
   font-size: clamp(2.4rem, 5.4vw, 3.9rem);
   font-weight: 800;
   letter-spacing: -0.035em;
