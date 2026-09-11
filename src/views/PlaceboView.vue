@@ -177,6 +177,10 @@ const readOutput = `{
             Also available as a Linux package, a release archive, or
             <code>go install</code> — <a href="#install">see all install options</a>.
           </p>
+          <p class="ph__install-alt muted">
+            Not ready to install? <RouterLink to="/playground">Run placebo in your
+            browser</RouterLink> — the real CLI, compiled to WebAssembly.
+          </p>
         </div>
 
         <div class="ph__links">
