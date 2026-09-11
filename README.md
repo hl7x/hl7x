@@ -40,6 +40,7 @@ src/
 └── views/
     ├── HomeView.vue       # landing page
     ├── PlaceboView.vue    # /placebo — minimalist tool page (brew.sh-style)
+    ├── PlaygroundView.vue # /playground — placebo running in-browser via WASM
     ├── ToolsView.vue      # /tools — catalog
     ├── DocsView.vue       # /docs — documentation board
     ├── ContributeView.vue # /contribute
@@ -51,6 +52,37 @@ src/
 Add an entry to `src/data/tools.js`. It will appear on the home page and the
 `/tools` catalog automatically. Give a tool its own dedicated page by adding a
 view + route (see `PlaceboView.vue` for the pattern).
+
+### The playground
+
+`/playground` runs the real `placebo` CLI in the browser. The Go binary is
+compiled to the `wasip1` WebAssembly target and driven by
+[`@bjorn3/browser_wasi_shim`](https://github.com/bjorn3/browser_wasi_shim)
+inside a Web Worker, so a long-running command never blocks the page.
+
+- `src/workers/placebo.worker.js` — compiles the module once, then makes a
+  fresh instance per command (Go calls `proc_exit`, which burns the instance).
+  The virtual `/tmp` is kept alive between runs, so generating a file and then
+  reading it back works the way it does on a real machine.
+- `src/views/PlaygroundView.vue` — command handling, the `/tmp` file panel, and
+  the playground-only builtins (`ls`, `cat`, `clear`, `reset`).
+- `public/wasm/placebo-<version>.wasm` — the binary, served immutably via
+  `public/_headers` since the version is in the filename.
+
+`send` and `listen` need raw TCP and so cannot work in a browser; they are
+intercepted with an explanation rather than left to fail. Everything else —
+`file`, `read sugarpill`, `help`, `version` — runs unmodified.
+
+Rebuild the binary after a placebo release:
+
+```bash
+./scripts/build-wasm.sh 0.2.0 ../placebo   # version, path to a placebo checkout
+```
+
+Then bump `PLACEBO_VERSION` in `src/views/PlaygroundView.vue` and delete the
+old `.wasm`. The binary is committed to this repo today; moving it to a
+goreleaser-published artifact that the build fetches would keep ~8 MB per
+release out of git history.
 
 ### Theming
 

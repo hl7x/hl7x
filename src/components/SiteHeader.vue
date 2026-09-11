@@ -9,6 +9,7 @@ const scrolled = ref(false)
 
 const nav = [
   { to: '/placebo', label: 'placebo' },
+  { to: '/playground', label: 'Playground' },
   { to: '/tools', label: 'Tools' },
   { to: '/docs', label: 'Docs' },
   { to: '/contribute', label: 'Contribute' }
