@@ -67,7 +67,9 @@ inside a Web Worker, so a long-running command never blocks the page.
 - `src/views/PlaygroundView.vue` — command handling, the `/tmp` file panel, and
   the playground-only builtins (`ls`, `cat`, `clear`, `reset`).
 - `public/wasm/placebo-<version>.wasm` — the binary, served immutably via
-  `public/_headers` since the version is in the filename.
+  `public/_headers` since the version is in the filename. It is ~8 MB raw and
+  ~1.9 MB over the wire; Cloudflare brotli-compresses it on the fly at a lower
+  quality level than `brotli -q 11` would reach locally.
 
 `send` and `listen` need raw TCP and so cannot work in a browser; they are
 intercepted with an explanation rather than left to fail. Everything else —

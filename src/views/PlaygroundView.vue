@@ -36,7 +36,7 @@ function call(message, transfer = []) {
 
 onMounted(async () => {
   print(`placebo ${PLACEBO_VERSION} — WebAssembly build`, 'system')
-  print('loading… (~1.4 MB, cached after the first visit)', 'system')
+  print('loading… (~1.9 MB, cached after the first visit)', 'system')
 
   worker.value = new Worker(new URL('../workers/placebo.worker.js', import.meta.url), {
     type: 'module'
