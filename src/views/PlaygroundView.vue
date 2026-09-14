@@ -220,11 +220,6 @@ const hasFiles = computed(() => files.value.length > 0)
       <RouterLink to="/placebo" class="pg__back">← placebo</RouterLink>
       <p class="eyebrow">Playground</p>
       <h1 class="pg__title">Run placebo in your browser</h1>
-      <p class="pg__sub muted">
-        This is the actual <code>placebo</code> CLI — the same Go binary you get from
-        Homebrew, compiled to WebAssembly and running in this tab. Nothing is sent to a
-        server, and every patient it generates is synthetic.
-      </p>
     </header>
 
     <section class="container pg__main">
@@ -299,7 +294,7 @@ const hasFiles = computed(() => files.value.length > 0)
 
 .pg__back {
   display: inline-block;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
   font-size: 0.9rem;
   color: var(--text-muted);
   text-decoration: none;
@@ -312,13 +307,7 @@ const hasFiles = computed(() => files.value.length > 0)
   font-size: clamp(2rem, 5vw, 2.75rem);
   line-height: 1.1;
   letter-spacing: -0.02em;
-  margin: 10px 0 14px;
-}
-
-.pg__sub {
-  max-width: var(--maxw-prose);
-  font-size: 1.05rem;
-  line-height: 1.65;
+  margin: 10px 0 0;
 }
 
 .pg__main {
