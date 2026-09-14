@@ -217,7 +217,6 @@ const hasFiles = computed(() => files.value.length > 0)
 <template>
   <article class="pg">
     <header class="container pg__head">
-      <RouterLink to="/placebo" class="pg__back">← placebo</RouterLink>
       <p class="eyebrow">Playground</p>
       <h1 class="pg__title">Run placebo in your browser</h1>
     </header>
@@ -290,17 +289,6 @@ const hasFiles = computed(() => files.value.length > 0)
 <style scoped>
 .pg__head {
   padding-block: 56px 32px;
-}
-
-.pg__back {
-  display: inline-block;
-  margin-bottom: 30px;
-  font-size: 0.9rem;
-  color: var(--text-muted);
-  text-decoration: none;
-}
-.pg__back:hover {
-  color: var(--accent);
 }
 
 .pg__title {
