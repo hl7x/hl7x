@@ -18,6 +18,13 @@ const router = createRouter({
       meta: { title: 'placebo — HL7 test message generator · HL7X' }
     },
     {
+      path: '/playground',
+      name: 'playground',
+      // Lazy-loaded — the playground pulls in the WASI shim and the worker
+      component: () => import('@/views/PlaygroundView.vue'),
+      meta: { title: 'Playground — run placebo in your browser · HL7X' }
+    },
+    {
       path: '/tools',
       name: 'tools',
       component: () => import('@/views/ToolsView.vue'),
