@@ -1,0 +1,4 @@
+# The wasm filename carries the placebo version, so a given URL never changes.
+/wasm/*
+  Cache-Control: public, max-age=31536000, immutable
+  Content-Type: application/wasm
