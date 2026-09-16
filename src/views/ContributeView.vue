@@ -267,4 +267,13 @@ const values = [
     padding: 32px;
   }
 }
+
+/* Grid and flex items default to min-width:auto, so a long command or a wide
+   code block forces its track past the viewport instead of scrolling inside
+   its own container. Let the tracks shrink. */
+.ways > *,
+.quickstart > *,
+.values > * {
+  min-width: 0;
+}
 </style>

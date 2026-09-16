@@ -43,6 +43,9 @@ async function copy() {
 
 <style scoped>
 .block {
+  /* Keeps a long line inside the block's own scroller instead of widening
+     whatever grid track the block sits in. */
+  min-width: 0;
   background: var(--code-bg);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius);
