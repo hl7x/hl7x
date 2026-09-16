@@ -376,4 +376,12 @@ onBeforeUnmount(() => observer?.disconnect())
     grid-template-columns: 1fr;
   }
 }
+
+/* Grid and flex items default to min-width:auto, so a long command or a wide
+   code block forces its track past the viewport instead of scrolling inside
+   its own container. Let the tracks shrink. */
+.docs > *,
+.docs__cards > * {
+  min-width: 0;
+}
 </style>
